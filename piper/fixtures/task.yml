@@ -1,0 +1,9 @@
+---
+image: docker:///my-image
+
+run:
+  path: my-task.sh
+
+inputs:
+  - name: input-1
+  - name: input-2
