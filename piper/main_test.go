@@ -42,6 +42,17 @@ var _ = Describe("Piper", func() {
 	})
 
 	Context("failure cases", func() {
+		Context("when the flag is not passed in", func() {
+			It("Print an error and exit with status 1", func() {
+				command := exec.Command(pathToPiper)
+				session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+				Expect(err).NotTo(HaveOccurred())
+
+				Eventually(session).Should(gexec.Exit(1))
+				Expect(session.Err.Contents()).To(ContainSubstring("-c is a required flag"))
+			})
+		})
+
 		Context("when the task file does not exist", func() {
 			It("prints an error and exits 1", func() {
 				command := exec.Command(pathToPiper, "-c", "no-such-file")
