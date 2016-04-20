@@ -31,6 +31,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	envVars := piper.EnvVarBuilder{}.Build(os.Environ(), taskConfig.Params)
+
 	dockerPath, err := exec.LookPath("docker")
 	if err != nil {
 		log.Fatalln(err)
@@ -51,7 +53,8 @@ func main() {
 		Stdout:  os.Stdout,
 		Stderr:  os.Stderr,
 	}
-	err = dockerClient.Run(taskConfig.Command, taskConfig.Image, volumeMounts)
+
+	err = dockerClient.Run(taskConfig.Command, taskConfig.Image, envVars, volumeMounts)
 	if err != nil {
 		log.Fatalln(err)
 	}

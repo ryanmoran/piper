@@ -6,4 +6,6 @@ run:
 
 inputs:
   - name: input-1
-  - name: input-2
+
+params:
+  VAR1: default-var-1

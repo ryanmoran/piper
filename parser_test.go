@@ -29,6 +29,9 @@ inputs:
   - name: input-1
   - name: input-2
   - name: input-3
+params:
+  VAR1: var-1
+  VAR2: var-2
 `)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -65,6 +68,16 @@ inputs:
 				"input-1",
 				"input-2",
 				"input-3",
+			}))
+		})
+
+		It("parses the task config for the params", func() {
+			config, err := parser.Parse(configFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(config.Params).To(Equal(map[string]string{
+				"VAR1": "var-1",
+				"VAR2": "var-2",
 			}))
 		})
 

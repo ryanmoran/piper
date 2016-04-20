@@ -50,8 +50,17 @@ var _ = Describe("DockerClient", func() {
 	})
 
 	Describe("Run", func() {
-		It("runs the command with the given volume mounts", func() {
-			err := client.Run("my-task.sh", "my-image", []piper.DockerVolumeMount{
+		It("runs the command with the given volume mounts, and environment", func() {
+			err := client.Run("my-task.sh", "my-image", []piper.DockerEnv{
+				{
+					Key:   "VAR1",
+					Value: "var-1",
+				},
+				{
+					Key:   "VAR2",
+					Value: "var-2",
+				},
+			}, []piper.DockerVolumeMount{
 				{
 					LocalPath:  "/some/local/path-1",
 					RemotePath: "/some/remote/path-1",
@@ -65,9 +74,11 @@ var _ = Describe("DockerClient", func() {
 
 			args := []string{
 				"run",
-				"--workdir=/tmp/build",
-				"--volume=/some/local/path-1:/some/remote/path-1",
-				"--volume=/some/local/path-2:/some/remote/path-2",
+				"--workdir /tmp/build",
+				"--env VAR1=var-1",
+				"--env VAR2=var-2",
+				"--volume /some/local/path-1:/some/remote/path-1",
+				"--volume /some/local/path-2:/some/remote/path-2",
 				"my-image",
 				"my-task.sh",
 			}
@@ -82,7 +93,7 @@ var _ = Describe("DockerClient", func() {
 						Command: exec.Command("no-such-executable"),
 						Stdout:  stdout,
 					}
-					err := client.Run("some-command", "some-image", []piper.DockerVolumeMount{})
+					err := client.Run("some-command", "some-image", []piper.DockerEnv{}, []piper.DockerVolumeMount{})
 					Expect(err).To(MatchError(ContainSubstring("executable file not found in $PATH")))
 				})
 			})
