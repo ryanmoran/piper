@@ -12,7 +12,7 @@ type DockerVolumeMount struct {
 }
 
 func (m DockerVolumeMount) String() string {
-	return fmt.Sprintf("--volume %s:%s", m.LocalPath, m.RemotePath)
+	return fmt.Sprintf("--volume=\"%s:%s\"", m.LocalPath, m.RemotePath)
 }
 
 type DockerEnv struct {
@@ -21,7 +21,7 @@ type DockerEnv struct {
 }
 
 func (e DockerEnv) String() string {
-	return fmt.Sprintf("--env %s=%s", e.Key, e.Value)
+	return fmt.Sprintf("--env=\"%s=%s\"", e.Key, e.Value)
 }
 
 type DockerClient struct {
@@ -46,7 +46,7 @@ func (c DockerClient) Pull(image string) error {
 func (c DockerClient) Run(command, image string, envVars []DockerEnv, mounts []DockerVolumeMount) error {
 	args := []string{
 		"run",
-		fmt.Sprintf("--workdir %s", VolumeMountPoint),
+		fmt.Sprintf("--workdir=%q", VolumeMountPoint),
 	}
 
 	for _, envVar := range envVars {
