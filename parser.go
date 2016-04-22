@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/cloudfoundry/cf-release/src/dea-hm-workspace/src/dea_next/go/src/github.com/go-yaml/yaml"
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
