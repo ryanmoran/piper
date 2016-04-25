@@ -21,6 +21,21 @@ func main() {
 
 	flag.Parse()
 
+	var errors []string
+	if len(taskFilePath) == 0 {
+		errors = append(errors, fmt.Sprintf(" -c is a required flag"))
+	}
+
+	if len(errors) > 0 {
+		fmt.Fprintln(os.Stderr, "Errors:")
+		for _, err := range errors {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		fmt.Fprintln(os.Stderr, "\nUsage:")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
 	taskConfig, err := piper.Parser{}.Parse(taskFilePath)
 	if err != nil {
 		log.Fatalln(err)
