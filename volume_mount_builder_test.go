@@ -18,7 +18,7 @@ var _ = Describe("VolumeMountBuilder", func() {
 			}, []string{
 				"input-1=/some/path-1",
 				"input-2=/some/path-2",
-			})
+			}, "input")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(mounts).To(Equal([]piper.DockerVolumeMount{
 				{
@@ -38,7 +38,7 @@ var _ = Describe("VolumeMountBuilder", func() {
 					_, err := builder.Build([]string{}, []string{
 						"input-1=something",
 						"input-2",
-					})
+					}, "input")
 					Expect(err).To(MatchError("could not parse input \"input-2\". must be of form <input-name>=<input-location>"))
 				})
 			})
@@ -52,7 +52,7 @@ var _ = Describe("VolumeMountBuilder", func() {
 					}, []string{
 						"input-1=/some/path-1",
 						"input-3=/some/path-3",
-					})
+					}, "input")
 					Expect(err).To(MatchError("input \"input-2\" is not satisfied. please include an input in command arguments"))
 				})
 			})

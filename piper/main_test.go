@@ -24,6 +24,7 @@ var _ = Describe("Piper", func() {
 	It("runs a concourse task", func() {
 		command := exec.Command(pathToPiper,
 			"-c", "fixtures/task.yml",
+			"-o", "output-1=/tmp/output-1",
 			"-i", "input-1=/tmp/local-1")
 		command.Env = append(os.Environ(), "VAR1=var-1")
 
@@ -38,7 +39,7 @@ var _ = Describe("Piper", func() {
 		dockerCommands := strings.Split(strings.TrimSpace(string(dockerInvocations)), "\n")
 		Expect(dockerCommands).To(Equal([]string{
 			fmt.Sprintf("%s pull my-image", pathToDocker),
-			fmt.Sprintf("%s run --workdir=\"/tmp/build\" --env=\"VAR1=var-1\" --volume=\"/tmp/local-1:/tmp/build/input-1\" my-image my-task.sh", pathToDocker),
+			fmt.Sprintf("%s run --workdir=\"/tmp/build\" --env=\"VAR1=var-1\" --volume=\"/tmp/local-1:/tmp/build/input-1\" --volume=\"/tmp/output-1:/tmp/build/output-1\" my-image my-task.sh", pathToDocker),
 		}))
 	})
 
@@ -76,6 +77,20 @@ var _ = Describe("Piper", func() {
 			})
 		})
 
+		Context("when outputs are missing", func() {
+			It("prints an error and exits 1", func() {
+				command := exec.Command(pathToPiper,
+					"-c", "fixtures/task.yml",
+					"-i", "input-1=/tmp/local-1",
+					"-i", "input-2=/tmp/local-2")
+				session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+				Expect(err).NotTo(HaveOccurred())
+
+				Eventually(session).Should(gexec.Exit(1))
+				Expect(session.Err.Contents()).To(ContainSubstring("output \"output-1\" is not satisfied"))
+			})
+		})
+
 		Context("when docker cannot be found on the $PATH", func() {
 			var path string
 
@@ -92,7 +107,8 @@ var _ = Describe("Piper", func() {
 				command := exec.Command(pathToPiper,
 					"-c", "fixtures/task.yml",
 					"-i", "input-1=/tmp/local-1",
-					"-i", "input-2=/tmp/local-2")
+					"-i", "input-2=/tmp/local-2",
+					"-o", "output-1=/tmp/output-1")
 				session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
 
@@ -121,6 +137,7 @@ var _ = Describe("Piper", func() {
 				command := exec.Command(pathToPiper,
 					"-c", "fixtures/task.yml",
 					"-i", "input-1=/tmp/local-1",
+					"-o", "output-1=/tmp/output-1",
 					"-i", "input-2=/tmp/local-2")
 				session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())
@@ -150,6 +167,7 @@ var _ = Describe("Piper", func() {
 				command := exec.Command(pathToPiper,
 					"-c", "fixtures/task.yml",
 					"-i", "input-1=/tmp/local-1",
+					"-o", "output-1=/tmp/output-1",
 					"-i", "input-2=/tmp/local-2")
 				session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 				Expect(err).NotTo(HaveOccurred())

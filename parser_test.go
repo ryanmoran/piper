@@ -29,6 +29,10 @@ inputs:
   - name: input-1
   - name: input-2
   - name: input-3
+outputs:
+  - name: output-1
+  - name: output-2
+  - name: output-3
 params:
   VAR1: var-1
   VAR2: var-2
@@ -68,6 +72,17 @@ params:
 				"input-1",
 				"input-2",
 				"input-3",
+			}))
+		})
+
+		It("parses the task config for outputs", func(){
+			config, err := parser.Parse(configFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(config.Outputs).To(Equal([]string{
+				"output-1",
+				"output-2",
+				"output-3",
 			}))
 		})
 
