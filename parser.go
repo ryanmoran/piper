@@ -11,6 +11,7 @@ type Config struct {
 	Image   string
 	Command string
 	Inputs  []string
+	Outputs  []string
 	Params  map[string]string
 }
 
@@ -30,6 +31,9 @@ func (p Parser) Parse(path string) (Config, error) {
 		Inputs []struct {
 			Name string `yaml:"name"`
 		} `yaml:"inputs"`
+		Outputs []struct {
+			Name string `yaml:"name"`
+		} `yaml:"outputs"`
 		Params map[string]string `yaml:"params"`
 	}
 
@@ -43,10 +47,16 @@ func (p Parser) Parse(path string) (Config, error) {
 		inputs = append(inputs, input.Name)
 	}
 
+	var outputs []string
+	for _, output := range task.Outputs {
+		outputs = append(outputs, output.Name)
+	}
+
 	return Config{
 		Image:   strings.TrimPrefix(task.Image, "docker:///"),
 		Command: task.Run.Path,
 		Inputs:  inputs,
+		Outputs: outputs,
 		Params:  task.Params,
 	}, nil
 }
