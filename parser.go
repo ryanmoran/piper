@@ -1,6 +1,7 @@
 package piper
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -18,11 +19,28 @@ type Run struct {
 	dir  string   `yaml:"dir"`
 }
 
+type ImageResourceSource struct {
+	Repository string
+	Tag        string
+}
+
+func (i ImageResourceSource) String() string {
+	if "" != i.Tag {
+		return fmt.Sprintf("%s:%s", i.Repository, i.Tag)
+	}
+	return i.Repository
+}
+
+type ImageResource struct {
+	Source ImageResourceSource
+}
+
 type Task struct {
-	Image  string `yaml:"image"`
-	Run    Run
-	Inputs []VolumeMount
-	Params map[string]string
+	Image         string `yaml:"image"`
+	Run           Run
+	Inputs        []VolumeMount
+	Params        map[string]string
+	ImageResource ImageResource `yaml:"image_resource"`
 }
 
 type Parser struct{}
@@ -39,8 +57,11 @@ func (p Parser) Parse(path string) (Task, error) {
 	if err != nil {
 		return Task{}, err
 	}
-
-	task.Image = strings.TrimPrefix(task.Image, "docker:///")
+	if task.ImageResource.Source.Repository != "" {
+		task.Image = task.ImageResource.Source.String()
+	} else {
+		task.Image = strings.TrimPrefix(task.Image, "docker:///")
+	}
 
 	return task, nil
 }

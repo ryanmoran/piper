@@ -46,8 +46,6 @@ var _ = Describe("Piper", func() {
 		command := exec.Command(pathToPiper,
 			"-c", "fixtures/advanced_task.yml",
 			"-i", "input=/tmp/local")
-		command.Env = append(os.Environ(), "VAR1=var-1")
-
 		session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -58,8 +56,8 @@ var _ = Describe("Piper", func() {
 
 		dockerCommands := strings.Split(strings.TrimSpace(string(dockerInvocations)), "\n")
 		Expect(dockerCommands).To(Equal([]string{
-			fmt.Sprintf("%s pull my-image", pathToDocker),
-			fmt.Sprintf("%s run --workdir=\"/tmp/build\" --volume=\"/tmp/local:/tmp/build/some/path/input\" my-image my-task.sh", pathToDocker),
+			fmt.Sprintf("%s pull my-image:x.y", pathToDocker),
+			fmt.Sprintf("%s run --workdir=\"/tmp/build\" --volume=\"/tmp/local:/tmp/build/some/path/input\" my-image:x.y my-task.sh", pathToDocker),
 		}))
 	})
 
