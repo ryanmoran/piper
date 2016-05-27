@@ -93,7 +93,7 @@ var _ = Describe("Piper", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				Eventually(session).Should(gexec.Exit(1))
-				Expect(session.Err.Contents()).To(ContainSubstring("input \"input-1\" is not satisfied"))
+				Expect(session.Err.Contents()).To(ContainSubstring("The following required inputs are not satisfied: input-1."))
 			})
 		})
 

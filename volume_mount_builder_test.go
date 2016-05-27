@@ -72,9 +72,8 @@ var _ = Describe("VolumeMountBuilder", func() {
 						{Name: "input-3"},
 					}, []string{
 						"input-1=/some/path-1",
-						"input-3=/some/path-3",
 					})
-					Expect(err).To(MatchError("input \"input-2\" is not satisfied. please include an input in command arguments"))
+					Expect(err).To(MatchError(`The following required inputs are not satisfied: input-2, input-3.`))
 				})
 			})
 		})

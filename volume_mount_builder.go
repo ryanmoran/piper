@@ -23,10 +23,12 @@ func (b VolumeMountBuilder) Build(inputs []VolumeMount, pairs []string) ([]Docke
 	}
 
 	var mounts []DockerVolumeMount
+	var missingInputs []string
 	for _, input := range inputs {
 		inputLocation, ok := pairsMap[input.Name]
 		if !ok {
-			return nil, fmt.Errorf("input %q is not satisfied. please include an input in command arguments", input.Name)
+			missingInputs = append(missingInputs, input.Name)
+			continue
 		}
 		var mountPoint string
 		if input.Path == "" {
@@ -39,6 +41,9 @@ func (b VolumeMountBuilder) Build(inputs []VolumeMount, pairs []string) ([]Docke
 			LocalPath:  inputLocation,
 			RemotePath: filepath.Clean(mountPoint),
 		})
+	}
+	if len(missingInputs) != 0 {
+		return nil, fmt.Errorf("The following required inputs are not satisfied: %s.", strings.Join(missingInputs, ", "))
 	}
 
 	return mounts, nil
