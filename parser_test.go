@@ -57,17 +57,17 @@ params:
 			config, err := parser.Parse(configFilePath)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(config.Command).To(Equal("/path/to/run/command"))
+			Expect(config.Run.Path).To(Equal("/path/to/run/command"))
 		})
 
 		It("parses the task config for the inputs", func() {
 			config, err := parser.Parse(configFilePath)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(config.Inputs).To(Equal([]string{
-				"input-1",
-				"input-2",
-				"input-3",
+			Expect(config.Inputs).To(Equal([]piper.VolumeMount{
+				piper.VolumeMount{Name: "input-1"},
+				piper.VolumeMount{Name: "input-2"},
+				piper.VolumeMount{Name: "input-3"},
 			}))
 		})
 
