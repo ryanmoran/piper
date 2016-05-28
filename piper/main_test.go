@@ -42,6 +42,25 @@ var _ = Describe("Piper", func() {
 		}))
 	})
 
+	It("runs a concourse task with custom inputs", func() {
+		command := exec.Command(pathToPiper,
+			"-c", "fixtures/advanced_task.yml",
+			"-i", "input=/tmp/local")
+		session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+		Expect(err).NotTo(HaveOccurred())
+
+		Eventually(session).Should(gexec.Exit(0))
+
+		dockerInvocations, err := ioutil.ReadFile(dockerconfig.InvocationsPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		dockerCommands := strings.Split(strings.TrimSpace(string(dockerInvocations)), "\n")
+		Expect(dockerCommands).To(Equal([]string{
+			fmt.Sprintf("%s pull my-image:x.y", pathToDocker),
+			fmt.Sprintf("%s run --workdir=\"/tmp/build\" --volume=\"/tmp/local:/tmp/build/some/path/input\" my-image:x.y my-task.sh", pathToDocker),
+		}))
+	})
+
 	Context("failure cases", func() {
 		Context("when the flag is not passed in", func() {
 			It("Print an error and exit with status 1", func() {
@@ -72,7 +91,7 @@ var _ = Describe("Piper", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				Eventually(session).Should(gexec.Exit(1))
-				Expect(session.Err.Contents()).To(ContainSubstring("input \"input-1\" is not satisfied"))
+				Expect(session.Err.Contents()).To(ContainSubstring("The following required inputs are not satisfied: input-1."))
 			})
 		})
 

@@ -2,6 +2,7 @@ package piper
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 )
 
@@ -9,7 +10,7 @@ const VolumeMountPoint = "/tmp/build"
 
 type VolumeMountBuilder struct{}
 
-func (b VolumeMountBuilder) Build(inputs, pairs []string) ([]DockerVolumeMount, error) {
+func (b VolumeMountBuilder) Build(inputs []VolumeMount, pairs []string) ([]DockerVolumeMount, error) {
 	pairsMap := make(map[string]string)
 
 	for _, pair := range pairs {
@@ -22,16 +23,27 @@ func (b VolumeMountBuilder) Build(inputs, pairs []string) ([]DockerVolumeMount, 
 	}
 
 	var mounts []DockerVolumeMount
+	var missingInputs []string
 	for _, input := range inputs {
-		inputLocation, ok := pairsMap[input]
+		inputLocation, ok := pairsMap[input.Name]
 		if !ok {
-			return nil, fmt.Errorf("input %q is not satisfied. please include an input in command arguments", input)
+			missingInputs = append(missingInputs, input.Name)
+			continue
+		}
+		var mountPoint string
+		if input.Path == "" {
+			mountPoint = filepath.Join(VolumeMountPoint, input.Name)
+		} else {
+			mountPoint = filepath.Join(VolumeMountPoint, input.Path)
 		}
 
 		mounts = append(mounts, DockerVolumeMount{
 			LocalPath:  inputLocation,
-			RemotePath: fmt.Sprintf("%s/%s", VolumeMountPoint, input),
+			RemotePath: filepath.Clean(mountPoint),
 		})
+	}
+	if len(missingInputs) != 0 {
+		return nil, fmt.Errorf("The following required inputs are not satisfied: %s.", strings.Join(missingInputs, ", "))
 	}
 
 	return mounts, nil

@@ -69,7 +69,7 @@ func main() {
 		Stderr:  os.Stderr,
 	}
 
-	err = dockerClient.Run(taskConfig.Command, taskConfig.Image, envVars, volumeMounts)
+	err = dockerClient.Run(taskConfig.Run.Path, taskConfig.Image, envVars, volumeMounts)
 	if err != nil {
 		log.Fatalln(err)
 	}

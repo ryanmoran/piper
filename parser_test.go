@@ -57,17 +57,17 @@ params:
 			config, err := parser.Parse(configFilePath)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(config.Command).To(Equal("/path/to/run/command"))
+			Expect(config.Run.Path).To(Equal("/path/to/run/command"))
 		})
 
 		It("parses the task config for the inputs", func() {
 			config, err := parser.Parse(configFilePath)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(config.Inputs).To(Equal([]string{
-				"input-1",
-				"input-2",
-				"input-3",
+			Expect(config.Inputs).To(Equal([]piper.VolumeMount{
+				piper.VolumeMount{Name: "input-1"},
+				piper.VolumeMount{Name: "input-2"},
+				piper.VolumeMount{Name: "input-3"},
 			}))
 		})
 
@@ -79,6 +79,67 @@ params:
 				"VAR1": "var-1",
 				"VAR2": "var-2",
 			}))
+		})
+
+		It("honors the image_resource", func() {
+			tempFile, err := ioutil.TempFile("", "")
+			Expect(err).NotTo(HaveOccurred())
+			_, err = tempFile.WriteString(`---
+image_resource:
+  type: docker-image
+  source:
+    repository: repo/docker-image-name
+run:
+  path: /path/to/run/command
+inputs:
+  - name: input-1
+  - name: input-2
+  - name: input-3
+params:
+  VAR1: var-1
+  VAR2: var-2
+`)
+			Expect(err).NotTo(HaveOccurred())
+
+			configFilePath = tempFile.Name()
+
+			err = tempFile.Close()
+			Expect(err).NotTo(HaveOccurred())
+			config, err := parser.Parse(configFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(config.Image).To(Equal("repo/docker-image-name"))
+		})
+
+		It("honors the image_resource with tags", func() {
+			tempFile, err := ioutil.TempFile("", "")
+			Expect(err).NotTo(HaveOccurred())
+			_, err = tempFile.WriteString(`---
+image_resource:
+  type: docker-image
+  source:
+    repository: repo/docker-image-name
+    tag: '1.7'
+run:
+  path: /path/to/run/command
+inputs:
+  - name: input-1
+  - name: input-2
+  - name: input-3
+params:
+  VAR1: var-1
+  VAR2: var-2
+`)
+			Expect(err).NotTo(HaveOccurred())
+
+			configFilePath = tempFile.Name()
+
+			err = tempFile.Close()
+			Expect(err).NotTo(HaveOccurred())
+			config, err := parser.Parse(configFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(config.Image).To(Equal("repo/docker-image-name:1.7"))
 		})
 
 		Context("failure cases", func() {

@@ -1,0 +1,14 @@
+---
+
+run:
+  path: my-task.sh
+
+image_resource:
+  type: docker-image
+  source:
+    repository: my-image
+    tag: 'x.y'
+
+inputs:
+  - name: input
+    path: some/path/input
