@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ryanmoran/piper.svg?branch=master)](https://travis-ci.org/ryanmoran/piper)
+
 # piper
 Like `fly execute` but running against a local docker daemon
 
