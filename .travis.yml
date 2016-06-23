@@ -1,0 +1,12 @@
+language: go
+go:
+- 1.6
+install:
+- go get -v ./...
+- go get github.com/onsi/gomega
+- go get github.com/onsi/ginkgo/ginkgo
+- export PATH=$PATH:$HOME/gopath/bin
+script:
+- GO15VENDOREXPERIMENT=1 $HOME/gopath/bin/ginkgo -r --randomizeAllSpecs --failOnPending
+  --randomizeSuites --race
+- for OS in darwin linux; do GOOS=$OS GOARCH=amd64 go build -o binaries/piper-$OS piper/main.go; done;
