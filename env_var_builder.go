@@ -7,7 +7,7 @@ type EnvVarBuilder struct{}
 func (b EnvVarBuilder) Build(environment []string, params map[string]string) []DockerEnv {
 	env := make(map[string]string)
 	for _, variable := range environment {
-		parts := strings.Split(variable, "=")
+		parts := strings.SplitN(variable, "=", 2)
 		env[parts[0]] = parts[1]
 	}
 

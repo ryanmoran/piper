@@ -28,4 +28,20 @@ var _ = Describe("EnvVarBuilder", func() {
 		}))
 
 	})
+
+	Context("when env vars have '=' signs in the value", func() {
+		It("returns a list of environment variables with '=' signs still in their place", func() {
+			vars := piper.EnvVarBuilder{}.Build([]string{
+				"VAR1=var-1==42=",
+			}, map[string]string{
+				"VAR1": "meow",
+			})
+			Expect(vars).To(ConsistOf([]piper.DockerEnv{
+				{
+					Key:   "VAR1",
+					Value: "var-1==42=",
+				},
+			}))
+		})
+	})
 })
