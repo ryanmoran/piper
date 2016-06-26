@@ -29,6 +29,10 @@ inputs:
   - name: input-1
   - name: input-2
   - name: input-3
+outputs:
+  - name: output-1
+  - name: output-2
+  - name: output-3
 params:
   VAR1: var-1
   VAR2: var-2
@@ -65,9 +69,20 @@ params:
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(config.Inputs).To(Equal([]piper.VolumeMount{
-				piper.VolumeMount{Name: "input-1"},
-				piper.VolumeMount{Name: "input-2"},
-				piper.VolumeMount{Name: "input-3"},
+				{Name: "input-1"},
+				{Name: "input-2"},
+				{Name: "input-3"},
+			}))
+		})
+
+		It("parses the task config for the outputs", func() {
+			config, err := parser.Parse(configFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(config.Outputs).To(Equal([]piper.VolumeMount{
+				{Name: "output-1"},
+				{Name: "output-2"},
+				{Name: "output-3"},
 			}))
 		})
 

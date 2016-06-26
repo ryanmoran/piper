@@ -13,11 +13,13 @@ import (
 func main() {
 	var (
 		taskFilePath string
-		inputPairs   InputPairs
+		inputPairs   ResourcePairs
+		outputPairs  ResourcePairs
 	)
 
 	flag.StringVar(&taskFilePath, "c", "", "path to the task configuration file")
 	flag.Var(&inputPairs, "i", "<input-name>=<input-location>")
+	flag.Var(&outputPairs, "o", "<output-name>=<output-location>")
 
 	flag.Parse()
 
@@ -41,7 +43,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	volumeMounts, err := piper.VolumeMountBuilder{}.Build(taskConfig.Inputs, inputPairs)
+	var resources []piper.VolumeMount
+	resources = append(resources, taskConfig.Inputs...)
+	resources = append(resources, taskConfig.Outputs...)
+
+	volumeMounts, err := piper.VolumeMountBuilder{}.Build(resources, inputPairs, outputPairs)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -75,13 +81,13 @@ func main() {
 	}
 }
 
-type InputPairs []string
+type ResourcePairs []string
 
-func (i *InputPairs) Set(input string) error {
-	*i = append(*i, input)
+func (p *ResourcePairs) Set(resource string) error {
+	*p = append(*p, resource)
 	return nil
 }
 
-func (i *InputPairs) String() string {
-	return fmt.Sprint(*i)
+func (p *ResourcePairs) String() string {
+	return fmt.Sprint(*p)
 }
