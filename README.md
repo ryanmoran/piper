@@ -12,7 +12,7 @@ in your task script? This is why.
 `piper` is really just a wrapper around some called to the
 `docker` cli. It pulls the image needed to run the task.
 It then runs `docker run` with some volume mounts for your
-inputs. Its as simple as that.
+inputs and outputs. Its as simple as that.
 
 ## Installation
 `go get github.com/ryanmoran/piper/piper`
