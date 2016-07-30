@@ -40,7 +40,7 @@ var _ = Describe("Piper", func() {
 		dockerCommands := strings.Split(strings.TrimSpace(string(dockerInvocations)), "\n")
 		Expect(dockerCommands).To(Equal([]string{
 			fmt.Sprintf("%s pull my-image", pathToDocker),
-			fmt.Sprintf("%s run --workdir=\"/tmp/build\" --env=\"VAR1=var-1\" --volume=\"/tmp/local-1:/tmp/build/input-1\" --volume=\"/tmp/local-2:/tmp/build/output-1\" my-image my-task.sh", pathToDocker),
+			fmt.Sprintf("%s run --workdir=/tmp/build --env=VAR1=var-1 --volume=/tmp/local-1:/tmp/build/input-1 --volume=/tmp/local-2:/tmp/build/output-1 my-image my-task.sh", pathToDocker),
 		}))
 	})
 
@@ -60,7 +60,7 @@ var _ = Describe("Piper", func() {
 		dockerCommands := strings.Split(strings.TrimSpace(string(dockerInvocations)), "\n")
 		Expect(dockerCommands).To(Equal([]string{
 			fmt.Sprintf("%s pull my-image:x.y", pathToDocker),
-			fmt.Sprintf("%s run --workdir=\"/tmp/build\" --volume=\"/tmp/local-1:/tmp/build/some/path/input\" --volume=\"/tmp/local-2:/tmp/build/some/path/output\" my-image:x.y my-task.sh", pathToDocker),
+			fmt.Sprintf("%s run --workdir=/tmp/build --volume=/tmp/local-1:/tmp/build/some/path/input --volume=/tmp/local-2:/tmp/build/some/path/output my-image:x.y my-task.sh", pathToDocker),
 		}))
 	})
 

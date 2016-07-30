@@ -74,11 +74,11 @@ var _ = Describe("DockerClient", func() {
 
 			args := []string{
 				"run",
-				"--workdir=\"/tmp/build\"",
-				"--env=\"VAR1=var-1\"",
-				"--env=\"VAR2=var-2\"",
-				"--volume=\"/some/local/path-1:/some/remote/path-1\"",
-				"--volume=\"/some/local/path-2:/some/remote/path-2\"",
+				"--workdir=/tmp/build",
+				"--env=VAR1=var-1",
+				"--env=VAR2=var-2",
+				"--volume=/some/local/path-1:/some/remote/path-1",
+				"--volume=/some/local/path-2:/some/remote/path-2",
 				"my-image",
 				"my-task.sh",
 			}
