@@ -15,11 +15,13 @@ func main() {
 		taskFilePath string
 		inputPairs   ResourcePairs
 		outputPairs  ResourcePairs
+		privileged   bool
 	)
 
 	flag.StringVar(&taskFilePath, "c", "", "path to the task configuration file")
 	flag.Var(&inputPairs, "i", "<input-name>=<input-location>")
 	flag.Var(&outputPairs, "o", "<output-name>=<output-location>")
+	flag.BoolVar(&privileged, "p", false, "run the task with full privileges")
 
 	flag.Parse()
 
@@ -75,7 +77,7 @@ func main() {
 		Stderr:  os.Stderr,
 	}
 
-	err = dockerClient.Run(taskConfig.Run.Path, taskConfig.Image, envVars, volumeMounts)
+	err = dockerClient.Run(taskConfig.Run.Path, taskConfig.Image, envVars, volumeMounts, privileged)
 	if err != nil {
 		log.Fatalln(err)
 	}
