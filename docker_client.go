@@ -43,10 +43,14 @@ func (c DockerClient) Pull(image string) error {
 	return nil
 }
 
-func (c DockerClient) Run(command, image string, envVars []DockerEnv, mounts []DockerVolumeMount) error {
+func (c DockerClient) Run(command, image string, envVars []DockerEnv, mounts []DockerVolumeMount, privileged bool) error {
 	args := []string{
 		"run",
 		fmt.Sprintf("--workdir=%s", VolumeMountPoint),
+	}
+
+	if privileged {
+		args = append(args, "--privileged")
 	}
 
 	for _, envVar := range envVars {
