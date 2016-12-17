@@ -65,6 +65,27 @@ var _ = Describe("Piper", func() {
 		}))
 	})
 
+	It("prints the docker commands to stdout, but does not execute them", func() {
+		command := exec.Command(pathToPiper,
+			"--dry-run",
+			"-c", "fixtures/advanced_task.yml",
+			"-i", "input=/tmp/local-1",
+			"-o", "output=/tmp/local-2",
+			"-p")
+		session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+		Expect(err).NotTo(HaveOccurred())
+
+		Eventually(session).Should(gexec.Exit(0))
+
+		dockerCommands := strings.Split(strings.TrimSpace(string(session.Out.Contents())), "\n")
+		Expect(dockerCommands).To(Equal([]string{
+			fmt.Sprintf("%s pull my-image:x.y", pathToDocker),
+			fmt.Sprintf("%s run --workdir=/tmp/build --privileged --volume=/tmp/local-1:/tmp/build/some/path/input --volume=/tmp/local-2:/tmp/build/some/path/output my-image:x.y my-task.sh", pathToDocker),
+		}))
+		_, err = os.Stat(dockerconfig.InvocationsPath)
+		Expect(os.IsNotExist(err)).To(BeTrue())
+	})
+
 	Context("failure cases", func() {
 		Context("when the flag is not passed in", func() {
 			It("Print an error and exit with status 1", func() {

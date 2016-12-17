@@ -16,12 +16,14 @@ func main() {
 		inputPairs   ResourcePairs
 		outputPairs  ResourcePairs
 		privileged   bool
+		dryRun       bool
 	)
 
 	flag.StringVar(&taskFilePath, "c", "", "path to the task configuration file")
 	flag.Var(&inputPairs, "i", "<input-name>=<input-location>")
 	flag.Var(&outputPairs, "o", "<output-name>=<output-location>")
 	flag.BoolVar(&privileged, "p", false, "run the task with full privileges")
+	flag.BoolVar(&dryRun, "dry-run", false, "prints the docker commands without running them")
 
 	flag.Parse()
 
@@ -66,7 +68,7 @@ func main() {
 		Stdout:  os.Stdout,
 		Stderr:  os.Stderr,
 	}
-	err = dockerClient.Pull(taskConfig.Image)
+	err = dockerClient.Pull(taskConfig.Image, dryRun)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -77,7 +79,7 @@ func main() {
 		Stderr:  os.Stderr,
 	}
 
-	err = dockerClient.Run(taskConfig.Run.Path, taskConfig.Image, envVars, volumeMounts, privileged)
+	err = dockerClient.Run(taskConfig.Run.Path, taskConfig.Image, envVars, volumeMounts, privileged, dryRun)
 	if err != nil {
 		log.Fatalln(err)
 	}

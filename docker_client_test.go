@@ -29,10 +29,17 @@ var _ = Describe("DockerClient", func() {
 
 	Describe("Pull", func() {
 		It("pulls the specified docker image", func() {
-			err := client.Pull("some-image")
+			err := client.Pull("some-image", false)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(stdout.String()).To(Equal("pull some-image\n"))
+		})
+
+		It("prints the docker command without running it", func() {
+			err := client.Pull("some-image", true)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(stdout.String()).To(Equal("echo pull some-image\n"))
 		})
 
 		Context("failure cases", func() {
@@ -42,7 +49,7 @@ var _ = Describe("DockerClient", func() {
 						Command: exec.Command("no-such-executable"),
 						Stdout:  stdout,
 					}
-					err := client.Pull("some-image")
+					err := client.Pull("some-image", false)
 					Expect(err).To(MatchError(ContainSubstring("executable file not found in $PATH")))
 				})
 			})
@@ -69,7 +76,7 @@ var _ = Describe("DockerClient", func() {
 					LocalPath:  "/some/local/path-2",
 					RemotePath: "/some/remote/path-2",
 				},
-			}, false)
+			}, false, false)
 			Expect(err).NotTo(HaveOccurred())
 
 			args := []string{
@@ -89,10 +96,28 @@ var _ = Describe("DockerClient", func() {
 		It("runs the command in privileged mode", func() {
 			err := client.Run("my-task.sh", "my-image",
 				[]piper.DockerEnv{},
-				[]piper.DockerVolumeMount{}, true)
+				[]piper.DockerVolumeMount{}, true, false)
 			Expect(err).NotTo(HaveOccurred())
 
 			args := []string{
+				"run",
+				"--workdir=/tmp/build",
+				"--privileged",
+				"my-image",
+				"my-task.sh",
+			}
+
+			Expect(stdout.String()).To(Equal(strings.Join(args, " ") + "\n"))
+		})
+
+		It("prints the docker command without running it", func() {
+			err := client.Run("my-task.sh", "my-image",
+				[]piper.DockerEnv{},
+				[]piper.DockerVolumeMount{}, true, true)
+			Expect(err).NotTo(HaveOccurred())
+
+			args := []string{
+				"echo",
 				"run",
 				"--workdir=/tmp/build",
 				"--privileged",
@@ -110,7 +135,7 @@ var _ = Describe("DockerClient", func() {
 						Command: exec.Command("no-such-executable"),
 						Stdout:  stdout,
 					}
-					err := client.Run("some-command", "some-image", []piper.DockerEnv{}, []piper.DockerVolumeMount{}, false)
+					err := client.Run("some-command", "some-image", []piper.DockerEnv{}, []piper.DockerVolumeMount{}, false, false)
 					Expect(err).To(MatchError(ContainSubstring("executable file not found in $PATH")))
 				})
 			})
