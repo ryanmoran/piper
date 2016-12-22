@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"strings"
 )
 
 type DockerVolumeMount struct {
@@ -30,8 +31,15 @@ type DockerClient struct {
 	Stderr  io.Writer
 }
 
-func (c DockerClient) Pull(image string) error {
-	c.Command.Args = append(c.Command.Args, "pull", image)
+func (c DockerClient) Pull(image string, dryRun bool) error {
+	args := append(c.Command.Args, "pull", image)
+
+	if dryRun {
+		fmt.Fprintln(c.Stdout, strings.Join(args, " "))
+		return nil
+	}
+
+	c.Command.Args = args
 	c.Command.Stdout = c.Stdout
 	c.Command.Stderr = c.Stderr
 
@@ -43,27 +51,28 @@ func (c DockerClient) Pull(image string) error {
 	return nil
 }
 
-func (c DockerClient) Run(command, image string, envVars []DockerEnv, mounts []DockerVolumeMount, privileged bool) error {
-	args := []string{
-		"run",
-		fmt.Sprintf("--workdir=%s", VolumeMountPoint),
-	}
+func (c DockerClient) Run(command, image string, envVars []DockerEnv, mounts []DockerVolumeMount, privileged bool, dryRun bool) error {
+	c.Command.Args = append(c.Command.Args, "run", fmt.Sprintf("--workdir=%s", VolumeMountPoint))
 
 	if privileged {
-		args = append(args, "--privileged")
+		c.Command.Args = append(c.Command.Args, "--privileged")
 	}
 
 	for _, envVar := range envVars {
-		args = append(args, envVar.String())
+		c.Command.Args = append(c.Command.Args, envVar.String())
 	}
 
 	for _, mount := range mounts {
-		args = append(args, mount.String())
+		c.Command.Args = append(c.Command.Args, mount.String())
 	}
 
-	args = append(args, image, command)
+	c.Command.Args = append(c.Command.Args, image, command)
 
-	c.Command.Args = append(c.Command.Args, args...)
+	if dryRun {
+		fmt.Fprintln(c.Stdout, strings.Join(c.Command.Args, " "))
+		return nil
+	}
+
 	c.Command.Stdout = c.Stdout
 	c.Command.Stderr = c.Stderr
 
