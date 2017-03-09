@@ -51,11 +51,15 @@ func (c DockerClient) Pull(image string, dryRun bool) error {
 	return nil
 }
 
-func (c DockerClient) Run(command, image string, envVars []DockerEnv, mounts []DockerVolumeMount, privileged bool, dryRun bool) error {
+func (c DockerClient) Run(command, image string, envVars []DockerEnv, mounts []DockerVolumeMount, privileged bool, dryRun bool, rm bool) error {
 	c.Command.Args = append(c.Command.Args, "run", fmt.Sprintf("--workdir=%s", VolumeMountPoint))
 
 	if privileged {
 		c.Command.Args = append(c.Command.Args, "--privileged")
+	}
+
+	if rm {
+		c.Command.Args = append(c.Command.Args, "--rm")
 	}
 
 	for _, envVar := range envVars {
