@@ -9,7 +9,7 @@ that take FOREVER to upload only to find out you had a typo
 in your task script? This is why.
 
 ## But how?
-`piper` is really just a wrapper around some called to the
+`piper` is really just a wrapper around some calls to the
 `docker` cli. It pulls the image needed to run the task.
 It then runs `docker run` with some volume mounts for your
 inputs and outputs. Its as simple as that.
