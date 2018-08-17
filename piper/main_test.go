@@ -44,6 +44,31 @@ var _ = Describe("Piper", func() {
 		}))
 	})
 
+	It("runs a concourse task with input image and tag", func() {
+		command := exec.Command(pathToPiper,
+			"-c", "fixtures/task.yml",
+			"-r", "my-image",
+			"-t", "my-tag",
+			"-i", "input-1=/tmp/local-1",
+			"-o", "output-1=/tmp/local-2",
+		)
+		command.Env = append(os.Environ(), "VAR1=var-1")
+
+		session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
+		Expect(err).NotTo(HaveOccurred())
+
+		Eventually(session).Should(gexec.Exit(0))
+
+		dockerInvocations, err := ioutil.ReadFile(dockerconfig.InvocationsPath)
+		Expect(err).NotTo(HaveOccurred())
+
+		dockerCommands := strings.Split(strings.TrimSpace(string(dockerInvocations)), "\n")
+		Expect(dockerCommands).To(Equal([]string{
+			fmt.Sprintf("%s pull my-image:my-tag", pathToDocker),
+			fmt.Sprintf("%s run --workdir=/tmp/build --env=VAR1=var-1 --volume=/tmp/local-1:/tmp/build/input-1 --volume=/tmp/local-2:/tmp/build/output-1 my-image:my-tag my-task.sh", pathToDocker),
+		}))
+	})
+
 	It("runs a concourse task with complex inputs", func() {
 		command := exec.Command(pathToPiper,
 			"-c", "fixtures/advanced_task.yml",

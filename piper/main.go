@@ -18,6 +18,8 @@ func main() {
 		privileged   bool
 		dryRun       bool
 		rm           bool
+		repository   string
+		tag          string
 	)
 
 	flag.StringVar(&taskFilePath, "c", "", "path to the task configuration file")
@@ -26,6 +28,8 @@ func main() {
 	flag.BoolVar(&privileged, "p", false, "run the task with full privileges")
 	flag.BoolVar(&dryRun, "dry-run", false, "prints the docker commands without running them")
 	flag.BoolVar(&rm, "rm", false, "removes the docker container after test")
+	flag.StringVar(&repository, "r", "", "docker image repo")
+	flag.StringVar(&tag, "t", "", "image tag")
 
 	flag.Parse()
 
@@ -70,7 +74,16 @@ func main() {
 		Stdout:  os.Stdout,
 		Stderr:  os.Stderr,
 	}
-	err = dockerClient.Pull(taskConfig.Image, dryRun)
+
+	dockerRepo := taskConfig.Image
+	if len(repository) > 0 {
+		dockerRepo = repository
+	}
+	if len(tag) > 0 {
+		dockerRepo += fmt.Sprintf(":%s", tag)
+	}
+
+	err = dockerClient.Pull(dockerRepo, dryRun)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -81,7 +94,7 @@ func main() {
 		Stderr:  os.Stderr,
 	}
 
-	err = dockerClient.Run(taskConfig.Run.Path, taskConfig.Image, envVars, volumeMounts, privileged, dryRun, rm)
+	err = dockerClient.Run(taskConfig.Run.Path, dockerRepo, envVars, volumeMounts, privileged, dryRun, rm)
 	if err != nil {
 		log.Fatalln(err)
 	}
