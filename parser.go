@@ -9,8 +9,9 @@ import (
 )
 
 type VolumeMount struct {
-	Name string `yaml:"name"`
-	Path string `yaml:"path"`
+	Name     string `yaml:"name"`
+	Path     string `yaml:"path"`
+	Optional bool   `yaml:"optional"`
 }
 
 type Run struct {

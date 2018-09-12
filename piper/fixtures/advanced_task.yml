@@ -12,6 +12,8 @@ image_resource:
 inputs:
   - name: input
     path: some/path/input
+  - name: optional-input
+    optional: true
 
 outputs:
   - name: output
