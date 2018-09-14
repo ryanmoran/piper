@@ -36,7 +36,9 @@ func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []str
 	for _, resource := range resources {
 		resourceLocation, ok := pairsMap[resource.Name]
 		if !ok {
-			missingResources = append(missingResources, resource.Name)
+			if !resource.Optional {
+				missingResources = append(missingResources, resource.Name)
+			}
 			continue
 		}
 		var mountPoint string

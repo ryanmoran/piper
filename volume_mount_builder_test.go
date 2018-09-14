@@ -14,7 +14,7 @@ var _ = Describe("VolumeMountBuilder", func() {
 		It("builds the volume mounts", func() {
 			mounts, err := builder.Build([]piper.VolumeMount{
 				piper.VolumeMount{Name: "input-1"},
-				piper.VolumeMount{Name: "input-2"},
+				piper.VolumeMount{Name: "input-2", Optional: true},
 				piper.VolumeMount{Name: "output-1"},
 				piper.VolumeMount{Name: "output-2"},
 			}, []string{
