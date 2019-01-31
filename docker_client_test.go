@@ -58,7 +58,7 @@ var _ = Describe("DockerClient", func() {
 
 	Describe("Run", func() {
 		It("runs the command with the given volume mounts, and environment", func() {
-			err := client.Run("my-task.sh", "my-image", []piper.DockerEnv{
+			err := client.Run([]string{"my-task.sh", "-my-arg1", "-my-arg2"}, "my-image", []piper.DockerEnv{
 				{
 					Key:   "VAR1",
 					Value: "var-1",
@@ -88,13 +88,15 @@ var _ = Describe("DockerClient", func() {
 				"--volume=/some/local/path-2:/some/remote/path-2",
 				"my-image",
 				"my-task.sh",
+				"-my-arg1",
+				"-my-arg2",
 			}
 
 			Expect(stdout.String()).To(Equal(strings.Join(args, " ") + "\n"))
 		})
 
 		It("runs the command in privileged mode", func() {
-			err := client.Run("my-task.sh", "my-image",
+			err := client.Run([]string{"my-task.sh"}, "my-image",
 				[]piper.DockerEnv{},
 				[]piper.DockerVolumeMount{}, true, false, false)
 			Expect(err).NotTo(HaveOccurred())
@@ -111,7 +113,7 @@ var _ = Describe("DockerClient", func() {
 		})
 
 		It("runs the command with --rm argument", func() {
-			err := client.Run("my-task.sh", "my-image",
+			err := client.Run([]string{"my-task.sh"}, "my-image",
 				[]piper.DockerEnv{},
 				[]piper.DockerVolumeMount{}, false, false, true)
 			Expect(err).NotTo(HaveOccurred())
@@ -128,7 +130,7 @@ var _ = Describe("DockerClient", func() {
 		})
 
 		It("prints the docker command without running it", func() {
-			err := client.Run("my-task.sh", "my-image",
+			err := client.Run([]string{"my-task.sh"}, "my-image",
 				[]piper.DockerEnv{},
 				[]piper.DockerVolumeMount{}, true, true, false)
 			Expect(err).NotTo(HaveOccurred())
@@ -152,7 +154,7 @@ var _ = Describe("DockerClient", func() {
 						Command: exec.Command("no-such-executable"),
 						Stdout:  stdout,
 					}
-					err := client.Run("some-command", "some-image", []piper.DockerEnv{}, []piper.DockerVolumeMount{}, false, false, false)
+					err := client.Run([]string{"some-command"}, "some-image", []piper.DockerEnv{}, []piper.DockerVolumeMount{}, false, false, false)
 					Expect(err).To(MatchError(ContainSubstring("executable file not found in $PATH")))
 				})
 			})

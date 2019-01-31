@@ -16,7 +16,7 @@ type VolumeMount struct {
 
 type Run struct {
 	Path string   `yaml:"path"`
-	args []string `yaml:"args"`
+	Args []string `yaml:"args"`
 	dir  string   `yaml:"dir"`
 }
 
@@ -41,6 +41,7 @@ type Task struct {
 	Run           Run
 	Inputs        []VolumeMount
 	Outputs       []VolumeMount
+	Caches        []VolumeMount
 	Params        map[string]string
 	ImageResource ImageResource `yaml:"image_resource"`
 }

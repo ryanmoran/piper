@@ -25,6 +25,7 @@ var _ = Describe("Parser", func() {
 image: docker:///some-docker-image
 run:
   path: /path/to/run/command
+  args: ['-arg1', '-arg2']
 inputs:
   - name: input-1
   - name: input-2
@@ -33,6 +34,10 @@ outputs:
   - name: output-1
   - name: output-2
   - name: output-3
+caches:
+  - path: cache-1
+  - path: cache-2
+  - path: cache-3
 params:
   VAR1: var-1
   VAR2: var-2
@@ -62,6 +67,7 @@ params:
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(config.Run.Path).To(Equal("/path/to/run/command"))
+			Expect(config.Run.Args).To(Equal([]string{"-arg1", "-arg2"}))
 		})
 
 		It("parses the task config for the inputs", func() {
@@ -72,6 +78,17 @@ params:
 				{Name: "input-1"},
 				{Name: "input-2"},
 				{Name: "input-3"},
+			}))
+		})
+
+		It("parses the task config for the caches", func() {
+			config, err := parser.Parse(configFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(config.Caches).To(Equal([]piper.VolumeMount{
+				{Path: "cache-1"},
+				{Path: "cache-2"},
+				{Path: "cache-3"},
 			}))
 		})
 

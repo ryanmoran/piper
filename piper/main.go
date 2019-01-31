@@ -56,6 +56,7 @@ func main() {
 	var resources []piper.VolumeMount
 	resources = append(resources, taskConfig.Inputs...)
 	resources = append(resources, taskConfig.Outputs...)
+	resources = append(resources, taskConfig.Caches...)
 
 	volumeMounts, err := piper.VolumeMountBuilder{}.Build(resources, inputPairs, outputPairs)
 	if err != nil {
@@ -94,7 +95,10 @@ func main() {
 		Stderr:  os.Stderr,
 	}
 
-	err = dockerClient.Run(taskConfig.Run.Path, dockerRepo, envVars, volumeMounts, privileged, dryRun, rm)
+	command := []string{taskConfig.Run.Path}
+	command = append(command, taskConfig.Run.Args...)
+
+	err = dockerClient.Run(command, dockerRepo, envVars, volumeMounts, privileged, dryRun, rm)
 	if err != nil {
 		log.Fatalln(err)
 	}
