@@ -25,6 +25,7 @@ var _ = Describe("Parser", func() {
 image: docker:///some-docker-image
 run:
   path: /path/to/run/command
+  args: ['-arg1', '-arg2']
 inputs:
   - name: input-1
   - name: input-2
@@ -62,6 +63,7 @@ params:
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(config.Run.Path).To(Equal("/path/to/run/command"))
+			Expect(config.Run.Args).To(Equal([]string{"-arg1", "-arg2"}))
 		})
 
 		It("parses the task config for the inputs", func() {

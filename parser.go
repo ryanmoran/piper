@@ -16,7 +16,7 @@ type VolumeMount struct {
 
 type Run struct {
 	Path string   `yaml:"path"`
-	args []string `yaml:"args"`
+	Args []string `yaml:"args"`
 	dir  string   `yaml:"dir"`
 }
 

@@ -94,7 +94,10 @@ func main() {
 		Stderr:  os.Stderr,
 	}
 
-	err = dockerClient.Run(taskConfig.Run.Path, dockerRepo, envVars, volumeMounts, privileged, dryRun, rm)
+	command := []string{taskConfig.Run.Path}
+	command = append(command, taskConfig.Run.Args...)
+
+	err = dockerClient.Run(command, dockerRepo, envVars, volumeMounts, privileged, dryRun, rm)
 	if err != nil {
 		log.Fatalln(err)
 	}
