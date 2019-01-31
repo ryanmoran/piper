@@ -56,6 +56,7 @@ func main() {
 	var resources []piper.VolumeMount
 	resources = append(resources, taskConfig.Inputs...)
 	resources = append(resources, taskConfig.Outputs...)
+	resources = append(resources, taskConfig.Caches...)
 
 	volumeMounts, err := piper.VolumeMountBuilder{}.Build(resources, inputPairs, outputPairs)
 	if err != nil {

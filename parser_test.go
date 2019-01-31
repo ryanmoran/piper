@@ -34,6 +34,10 @@ outputs:
   - name: output-1
   - name: output-2
   - name: output-3
+caches:
+  - path: cache-1
+  - path: cache-2
+  - path: cache-3
 params:
   VAR1: var-1
   VAR2: var-2
@@ -74,6 +78,17 @@ params:
 				{Name: "input-1"},
 				{Name: "input-2"},
 				{Name: "input-3"},
+			}))
+		})
+
+		It("parses the task config for the caches", func() {
+			config, err := parser.Parse(configFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(config.Caches).To(Equal([]piper.VolumeMount{
+				{Path: "cache-1"},
+				{Path: "cache-2"},
+				{Path: "cache-3"},
 			}))
 		})
 

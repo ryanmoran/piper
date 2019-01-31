@@ -17,6 +17,7 @@ var _ = Describe("VolumeMountBuilder", func() {
 				piper.VolumeMount{Name: "input-2", Optional: true},
 				piper.VolumeMount{Name: "output-1"},
 				piper.VolumeMount{Name: "output-2"},
+				piper.VolumeMount{Path: "cache-1"},
 			}, []string{
 				"input-1=/some/path-1",
 				"input-2=/some/path-2",
@@ -25,7 +26,7 @@ var _ = Describe("VolumeMountBuilder", func() {
 				"output-2=/some/path-4",
 			})
 			Expect(err).NotTo(HaveOccurred())
-			Expect(mounts).To(Equal([]piper.DockerVolumeMount{
+			Expect(mounts[0:4]).To(Equal([]piper.DockerVolumeMount{
 				{
 					LocalPath:  "/some/path-1",
 					RemotePath: "/tmp/build/input-1",
@@ -43,6 +44,8 @@ var _ = Describe("VolumeMountBuilder", func() {
 					RemotePath: "/tmp/build/output-2",
 				},
 			}))
+			Expect(mounts[4].LocalPath).To(Equal("/tmp"))
+			Expect(mounts[4].RemotePath).To(Equal("/tmp/build/cache-1"))
 		})
 
 		It("honors the path given in the VolumeMount", func() {

@@ -34,6 +34,16 @@ func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []str
 	var mounts []DockerVolumeMount
 	var missingResources []string
 	for _, resource := range resources {
+		if resource.Name == "" && resource.Path != "" {
+			mountPoint := filepath.Join(VolumeMountPoint, resource.Path)
+
+			mounts = append(mounts, DockerVolumeMount{
+				LocalPath:  "/tmp",
+				RemotePath: filepath.Clean(mountPoint),
+			})
+			continue
+		}
+
 		resourceLocation, ok := pairsMap[resource.Name]
 		if !ok {
 			if !resource.Optional {

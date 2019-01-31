@@ -41,6 +41,7 @@ type Task struct {
 	Run           Run
 	Inputs        []VolumeMount
 	Outputs       []VolumeMount
+	Caches        []VolumeMount
 	Params        map[string]string
 	ImageResource ImageResource `yaml:"image_resource"`
 }
