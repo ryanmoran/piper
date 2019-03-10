@@ -86,6 +86,7 @@ var _ = Describe("DockerClient", func() {
 				"--env=VAR2=var-2",
 				"--volume=/some/local/path-1:/some/remote/path-1",
 				"--volume=/some/local/path-2:/some/remote/path-2",
+				"-t",
 				"my-image",
 				"my-task.sh",
 				"-my-arg1",
@@ -105,6 +106,7 @@ var _ = Describe("DockerClient", func() {
 				"run",
 				"--workdir=/tmp/build",
 				"--privileged",
+				"-t",
 				"my-image",
 				"my-task.sh",
 			}
@@ -122,6 +124,7 @@ var _ = Describe("DockerClient", func() {
 				"run",
 				"--workdir=/tmp/build",
 				"--rm",
+				"-t",
 				"my-image",
 				"my-task.sh",
 			}
@@ -140,6 +143,7 @@ var _ = Describe("DockerClient", func() {
 				"run",
 				"--workdir=/tmp/build",
 				"--privileged",
+				"-t",
 				"my-image",
 				"my-task.sh",
 			}
