@@ -78,7 +78,7 @@ func (c DockerClient) Run(
 		c.Command.Args = append(c.Command.Args, mount.String())
 	}
 
-	c.Command.Args = append(c.Command.Args, "-t") // enable pseudo-tty
+	c.Command.Args = append(c.Command.Args, "-tty")
 	c.Command.Args = append(c.Command.Args, image)
 	c.Command.Args = append(c.Command.Args, command...)
 
