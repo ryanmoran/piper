@@ -2,6 +2,7 @@ package piper
 
 import (
 	"fmt"
+	"os/user"
 	"path/filepath"
 	"strings"
 )
@@ -19,7 +20,11 @@ func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []str
 			return nil, fmt.Errorf("could not parse input %q. must be of form <input-name>=<input-location>", input)
 		}
 
-		pairsMap[parts[0]] = parts[1]
+		expandedPath, err := expandUser(parts[1])
+		if err != nil {
+			return nil, err
+		}
+		pairsMap[parts[0]] = expandedPath
 	}
 
 	for _, output := range outputs {
@@ -28,7 +33,11 @@ func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []str
 			return nil, fmt.Errorf("could not parse output %q. must be of form <output-name>=<output-location>", output)
 		}
 
-		pairsMap[parts[0]] = parts[1]
+		expandedPath, err := expandUser(parts[1])
+		if err != nil {
+			return nil, err
+		}
+		pairsMap[parts[0]] = expandedPath
 	}
 
 	var mounts []DockerVolumeMount
@@ -68,4 +77,17 @@ func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []str
 	}
 
 	return mounts, nil
+}
+
+func expandUser(path string) (string, error) {
+	if !strings.HasPrefix(path, "~/") {
+		return path, nil
+	}
+
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	dir := usr.HomeDir
+	return filepath.Join(dir, path[2:]), nil
 }
