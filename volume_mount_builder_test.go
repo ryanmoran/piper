@@ -48,6 +48,20 @@ var _ = Describe("VolumeMountBuilder", func() {
 			Expect(mounts[4].RemotePath).To(Equal("/tmp/build/cache-1"))
 		})
 
+		It("expands '~' in paths", func() {
+			mounts, err := builder.Build([]piper.VolumeMount{
+				piper.VolumeMount{Name: "input-1"},
+				piper.VolumeMount{Name: "output-1"},
+			}, []string{
+				"input-1=~/some/path-1",
+			}, []string{
+				"output-1=~/some/path-2",
+			})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(mounts[0].LocalPath).ShouldNot(ContainSubstring("~"))
+			Expect(mounts[1].LocalPath).ShouldNot(ContainSubstring("~"))
+		})
+
 		It("honors the path given in the VolumeMount", func() {
 			mounts, err := builder.Build([]piper.VolumeMount{
 				piper.VolumeMount{Name: "input-1", Path: "some/path/to/input"},
