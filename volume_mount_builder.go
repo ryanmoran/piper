@@ -2,17 +2,16 @@ package piper
 
 import (
 	"fmt"
+	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
 )
 
-const VolumeMountPoint = "/tmp/build"
+type PairsMap map[string]string
 
-type VolumeMountBuilder struct{}
-
-func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []string) ([]DockerVolumeMount, error) {
-	pairsMap := make(map[string]string)
+func NewPairsMap(inputs, outputs []string) (PairsMap, error) {
+	pairsMap := make(PairsMap)
 
 	for _, input := range inputs {
 		parts := strings.Split(input, "=")
@@ -40,6 +39,37 @@ func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []str
 		pairsMap[parts[0]] = expandedPath
 	}
 
+	return pairsMap, nil
+}
+
+func (p PairsMap) Resolve(resourceName string) (string, error) {
+	if resourceLocation, ok := p[resourceName]; ok {
+		return resourceLocation, nil
+	}
+
+	resourceLocation, err := filepath.Abs(resourceName)
+	if err != nil {
+		return "", err
+	}
+	if _, err := os.Stat(resourceLocation); os.IsNotExist(err) {
+		return "", err
+	}
+
+	return resourceLocation, nil
+}
+
+const VolumeMountPoint = "/tmp/build"
+
+type VolumeMountBuilder struct{}
+
+
+func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []string) ([]DockerVolumeMount, error) {
+
+	pairsMap, err := NewPairsMap(inputs, outputs)
+	if err != nil {
+		return nil, err
+	}
+
 	var mounts []DockerVolumeMount
 	var missingResources []string
 	for _, resource := range resources {
@@ -53,8 +83,8 @@ func (b VolumeMountBuilder) Build(resources []VolumeMount, inputs, outputs []str
 			continue
 		}
 
-		resourceLocation, ok := pairsMap[resource.Name]
-		if !ok {
+		resourceLocation, err := pairsMap.Resolve(resource.Name)
+		if err != nil {
 			if !resource.Optional {
 				missingResources = append(missingResources, resource.Name)
 			}
